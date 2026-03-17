@@ -1,0 +1,61 @@
+﻿
+F:\projekAI\absen\app\dashboard\components\Sidebar.js
+  13:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  11 |         const userStr = localStorage.getItem('user');
+  12 |         if (userStr) {
+> 13 |             setUser(JSON.parse(userStr));
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  14 |         }
+  15 |     }, []);
+  16 |  react-hooks/set-state-in-effect
+
+F:\projekAI\absen\app\dashboard\laporan\page.js
+  52:8  warning  React Hook useEffect has a missing dependency: 'fetchLaporan'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+F:\projekAI\absen\app\dashboard\layout.js
+  19:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  17 |
+  18 |         const user = JSON.parse(userStr);
+> 19 |         setAuthorized(true);
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  20 |
+  21 |         // Basic RBAC enforced at routing level
+  22 |         if (user.role === 'anggota') {  react-hooks/set-state-in-effect
+
+F:\projekAI\absen\app\dashboard\pendataan\components\PersonnelFormModal.js
+  13:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  11 |         if (isOpen) {
+  12 |             if (initialData) {
+> 13 |                 setFormData(initialData);
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |             } else {
+  15 |                 setFormData({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A' });
+  16 |             }  react-hooks/set-state-in-effect
+
+F:\projekAI\absen\app\register\page.js
+   5:10  warning  'ShieldCheck' is defined but never used    @typescript-eslint/no-unused-vars
+  35:21  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 6 problems (3 errors, 3 warnings)
+

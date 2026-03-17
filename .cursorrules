@@ -1,0 +1,25 @@
+# Cursor Rules - Absensi TNI (Yonif 763/SBA)
+
+## Project Overview
+Digital attendance system for military personnel using Next.js, Supabase, and Tailwind CSS.
+
+## UI/UX Standards (Glassmorphism)
+- **Background**: Use transparent/blur backgrounds (`backdrop-blur-xl`, `bg-white/5`).
+- **Cards**: Use `glass-card` (custom class) or `rounded-[2.5rem]` with subtle borders (`border-white/10`).
+- **Icons**: Use `Lucide-React`.
+- **Colors**: Indigo as primary (`indigo-600`), Emerald for success (`emerald-400`), Rose for errors/sickness (`rose-400`).
+- **Typography**: Black/Extrabold for headers, Medium/Bold for body. Ensure high contrast in dark/glass mode.
+
+## Code Architecture
+- **Atomic Components**: Keep components small and focused. Extract shared logic into hooks.
+- **Supabase**: Use `@/lib/supabase` for database interactions. 
+- **Modular Dashboard**: All dashboard elements should be in `app/dashboard/components/`.
+
+## Language Conventions
+- **UI Text**: Must use Indonesian (Bahasa Indonesia) for all user-facing strings (e.g., "Hadir", "Izin", "Sakit", "Apel Pagi").
+- **Technical Terms**: Standard English for code (variable names, functions).
+
+## Terminal Integration
+- Always run `npm run lint` or `npm run build` after major refactorings.
+- Use `npm run mcp:start` to test MCP server changes.
+- ALWAYS test the application visually in the browser after making functional or UI changes to ensure everything renders correctly.
