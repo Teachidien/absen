@@ -17,7 +17,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/da
     const allMenuItems = [
         { icon: <Activity className="w-4 h-4" />, label: 'Monitoring', href: '/dashboard', roles: ['admin', 'pimpinan', 'piket'] },
         { icon: <Users className="w-4 h-4" />, label: 'Personel', href: '/dashboard/pendataan', roles: ['admin', 'pimpinan', 'piket', 'anggota'] },
-        { icon: <BookOpen className="w-4 h-4" />, label: 'Laporan', href: '/dashboard/laporan', roles: ['admin', 'pimpinan', 'anggota'] },
+        { icon: <BookOpen className="w-4 h-4" />, label: 'Laporan', href: '/dashboard/laporan', roles: ['admin', 'pimpinan'] },
         { icon: <FileText className="w-4 h-4" />, label: 'Ajukan Izin', href: '/dashboard/izin', roles: ['anggota'] },
         { icon: <MapPin className="w-4 h-4" />, label: 'Pantau Izin', href: '/dashboard/pantau-izin', roles: ['admin', 'pimpinan'] },
     ];

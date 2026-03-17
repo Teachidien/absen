@@ -20,6 +20,7 @@ const SATUAN_LOGOS = {
 
 export default function DaftarPersonel() {
     const [personnel, setPersonnel] = useState([]);
+    const [pendingUsers, setPendingUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
@@ -42,18 +43,29 @@ export default function DaftarPersonel() {
         async function fetchPersonnel() {
             setLoading(true);
             try {
-                const { data: users, error } = await supabase.from('users').select('*').neq('role', 'admin');
+                // Fetch approved users (or users without status for backward compat)
+                const { data: users, error } = await supabase.from('users')
+                    .select('*')
+                    .neq('role', 'admin')
+                    .in('status', ['approved', null]);
+                
                 if (!error && users?.length > 0) {
                     setPersonnel(users);
                 } else {
-                    setPersonnel([
-                        { id: '1', name: 'Prada Budi', nrp: '312019', pangkat: 'Prada', satuan: 'Kompi A' },
-                        { id: '2', name: 'Kopda Santoso', nrp: '312020', pangkat: 'Kopda', satuan: 'Kompi A' },
-                        { id: '3', name: 'Letda Tiar', nrp: '312021', pangkat: 'Letda', satuan: 'Kompi M' },
-                        { id: '4', name: 'Serka Agus', nrp: '312022', pangkat: 'Serka', satuan: 'Kompi B' },
-                        { id: '5', name: 'Pratu Doni', nrp: '312023', pangkat: 'Pratu', satuan: 'Kompi C' },
-                        { id: '6', name: 'Praka Ahmad', nrp: '312024', pangkat: 'Praka', satuan: 'Banpur' },
-                    ]);
+                    setPersonnel([]);
+                }
+
+                // If admin or pimpinan, also fetch pending users
+                if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'pimpinan')) {
+                    const { data: pending, error: pendingErr } = await supabase.from('users')
+                        .select('*')
+                        .eq('status', 'pending');
+                        
+                    if (!pendingErr && pending?.length > 0) {
+                        setPendingUsers(pending);
+                    } else {
+                        setPendingUsers([]);
+                    }
                 }
             } catch (err) {
                 console.error(err);
@@ -61,8 +73,10 @@ export default function DaftarPersonel() {
                 setTimeout(() => setLoading(false), 400);
             }
         }
-        fetchPersonnel();
-    }, []);
+        if (currentUser) {
+            fetchPersonnel();
+        }
+    }, [currentUser]);
 
     const satuan_options = ['Semua', ...SATUAN_ORDER];
 
@@ -110,8 +124,8 @@ export default function DaftarPersonel() {
         setIsModalOpen(false);
         try {
             const payload = data.id
-                ? { id: data.id, name: data.name, nrp: data.nrp, pangkat: data.pangkat, satuan: data.satuan }
-                : { name: data.name, nrp: data.nrp, pangkat: data.pangkat, satuan: data.satuan };
+                ? { id: data.id, name: data.name, nrp: data.nrp, pangkat: data.pangkat, satuan: data.satuan, role: data.role }
+                : { name: data.name, nrp: data.nrp, pangkat: data.pangkat, satuan: data.satuan, role: data.role, password: data.password, status: 'approved' }; // Direct adds from dashboard are auto approved
 
             const { data: savedData, error } = await supabase.from('users').upsert(payload).select().single();
             if (error) throw error;
@@ -150,6 +164,41 @@ export default function DaftarPersonel() {
                     Swal.fire({ title: 'Dihapus', icon: 'success', customClass: { popup: 'glass-swal' } });
                 } catch (err) {
                     Swal.fire({ title: 'Gagal', text: 'Gagal menghapus data.', icon: 'error', customClass: { popup: 'glass-swal' } });
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+    };
+
+    const handleApproveUser = async (id, name) => {
+        Swal.fire({
+            title: 'Setujui Akun?',
+            text: `Berikan akses login untuk ${name}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981', // emerald-500
+            confirmButtonText: 'Setujui',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'glass-swal' }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                try {
+                    const { error } = await supabase.from('users').update({ status: 'approved' }).eq('id', id);
+                    if (error) throw error;
+                    
+                    // Move from pending to approved list
+                    const approvedUser = pendingUsers.find(p => p.id === id);
+                    if (approvedUser) {
+                        approvedUser.status = 'approved';
+                        setPersonnel(prev => [...prev, approvedUser]);
+                        setPendingUsers(prev => prev.filter(p => p.id !== id));
+                    }
+                    
+                    Swal.fire({ title: 'Disetujui', text: 'Akun berhasil diaktifkan.', icon: 'success', customClass: { popup: 'glass-swal' } });
+                } catch (err) {
+                    Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan sistem.', icon: 'error', customClass: { popup: 'glass-swal' } });
                 } finally {
                     setLoading(false);
                 }
@@ -236,7 +285,56 @@ export default function DaftarPersonel() {
                             </div>
                         </div>
 
-                        {/* Accordion groups */}
+                        {/* Menunggu Persetujuan Section (Only for Admin/Pimpinan) */}
+                        {pendingUsers.length > 0 && !isAnggota && (
+                            <div className="mb-6 rounded-2xl border border-amber-500/20 overflow-hidden bg-amber-500/5">
+                                <div className="w-full flex items-center gap-4 px-5 py-4 bg-amber-500/10">
+                                    <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/30">
+                                        <Users className="text-amber-400" size={24} />
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <p className="text-xs font-black text-amber-400 uppercase tracking-wide">Menunggu Persetujuan</p>
+                                        <p className="text-[9px] text-amber-500/70 font-bold">Akun baru butuh verifikasi</p>
+                                    </div>
+                                    <span className="text-[9px] font-black bg-amber-500/20 text-amber-400 px-2 py-1 rounded-lg shrink-0">{pendingUsers.length}</span>
+                                </div>
+                                
+                                <div className="border-t border-amber-500/10 p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {pendingUsers.map(p => (
+                                        <div key={p.id} className="group p-4 rounded-2xl bg-black/20 border border-amber-500/10 hover:border-amber-500/30 transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 font-black text-base border border-amber-500/20 shrink-0">
+                                                    {p.name.charAt(0)}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-black text-white text-xs tracking-tight uppercase truncate">{p.name}</h4>
+                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                                        <span className="text-[9px] font-black bg-white/10 text-slate-400 px-1.5 py-0.5 rounded">{p.satuan}</span>
+                                                        <span className="text-[9px] font-bold text-slate-500">{p.nrp}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button
+                                                        onClick={() => handleApproveUser(p.id, p.name)}
+                                                        className="text-[9px] font-black text-emerald-400 hover:text-white bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-500 transition-all"
+                                                    >
+                                                        Terima
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeletePersonnel(p.id, p.name)}
+                                                        className="text-[9px] font-black text-rose-400 hover:text-white bg-rose-500/10 px-3 py-1.5 rounded-xl border border-rose-500/20 hover:bg-rose-500 transition-all ml-1"
+                                                    >
+                                                        Tolak
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Accordion groups untuk Personel Aktif */}
                         <div className="flex flex-col gap-3">
                             {groupedBySatuan.map(({ satuan, members }) => {
                                 const isOpen = expandedKompi.has(satuan);
@@ -321,6 +419,7 @@ export default function DaftarPersonel() {
                 onClose={() => setIsModalOpen(false)}
                 initialData={modalData}
                 onSave={handleSavePersonnel}
+                currentUser={currentUser}
             />
         </div>
     );

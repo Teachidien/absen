@@ -6,8 +6,7 @@ import { UserPlus, Fingerprint } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const PANGKAT_LIST = ['Prada', 'Pratu', 'Praka', 'Kopda', 'Koptu', 'Kopka', 'Serda', 'Sertu', 'Serka', 'Serma', 'Pelda', 'Peltu', 'Letda', 'Lettu', 'Kapten', 'Mayor', 'Letkol', 'Kolonel', 'Brigjen', 'Mayjen', 'Letjen', 'Jenderal'];
-const SATUAN_LIST = ['Kompi A', 'Kompi B', 'Kompi C', 'Banpur', 'Kompi Markas'];
-const ROLE_LIST = ['anggota', 'piket', 'pimpinan', 'admin'];
+const SATUAN_LIST = ['Kompi A', 'Kompi B', 'Kompi C', 'Kompi Markas', 'Kompi Bantuan'];
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -16,9 +15,12 @@ export default function Register() {
         pangkat: 'Prada',
         satuan: 'Kompi A',
         password: '',
-        role: 'anggota'
+        password: '',
+        role: 'anggota',
+        status: 'pending'
     });
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleRegister = async (e) => {
@@ -42,7 +44,7 @@ export default function Register() {
 
             Swal.fire({
                 title: 'Registrasi Berhasil',
-                text: 'Akun Anda telah dibuat. Silakan login.',
+                text: 'Akun Anda telah dibuat dan sedang menunggu persetujuan (pending). Silakan hubungi Admin/Pimpinan.',
                 icon: 'success',
                 customClass: { popup: 'glass-swal' }
             }).then(() => {
@@ -90,7 +92,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">NRP / NIK</label>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">NRP</label>
                         <input
                             type="text" required
                             value={formData.nrp} onChange={e => setFormData({ ...formData, nrp: e.target.value })}
@@ -99,14 +101,21 @@ export default function Register() {
                         />
                     </div>
 
-                    <div>
+                    <div className="relative">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Kata Sandi (Password)</label>
                         <input
-                            type="password" required
+                            type={showPassword ? "text" : "password"} required
                             value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
-                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold"
+                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 pr-12 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold"
                             placeholder="Buat sandi yang kuat"
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-[38px] text-slate-500 hover:text-emerald-500 transition-colors"
+                        >
+                            {showPassword ? <span className="text-xs font-bold uppercase">Sembunyikan</span> : <span className="text-xs font-bold uppercase">Lihat</span>}
+                        </button>
                     </div>
 
                     <div>
@@ -123,13 +132,7 @@ export default function Register() {
                         </select>
                     </div>
 
-                    <div className="col-span-1 md:col-span-2">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Hak Akses (Role)</label>
-                        <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold appearance-none">
-                            {ROLE_LIST.map(r => <option key={r} value={r}>{r.toUpperCase()}</option>)}
-                        </select>
-                        <p className="text-[10px] text-slate-500 mt-2 ml-1">Catatan: Pastikan Anda memilih hak akses yang sesuai dengan otoritas Anda.</p>
-                    </div>
+                    {/* Role disembunyikan dan di-hardcode ke 'anggota' */}
 
                     <div className="col-span-1 md:col-span-2 mt-4">
                         <button

@@ -6,8 +6,10 @@ import { ShieldCheck, LogIn, KeyRound, User, Eye, EyeOff } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 export default function Login() {
-    const [nrp, setNrp] = useState('');
-    const [password, setPassword] = useState('');
+    const [formData, setFormData] = useState({
+        nrp: '',
+        password: ''
+    });
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
@@ -20,7 +22,7 @@ export default function Login() {
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
-                .eq('nrp', nrp)
+                .eq('nrp', formData.nrp)
                 .single();
 
             if (error || !data) {
@@ -30,16 +32,21 @@ export default function Login() {
             // Check password. If column doesn't exist yet (null), accept any password
             // as a graceful fallback until the schema is migrated.
             if (data.password !== null && data.password !== undefined) {
-                if (data.password !== password) {
+                if (data.password !== formData.password) {
                     throw new Error('Password salah. Gunakan password yang telah didaftarkan.');
                 }
             }
 
-            // Apply default role if column doesn't exist yet
+            // Apply default role and status if column doesn't exist yet
             const userWithRole = {
                 ...data,
-                role: data.role || 'admin'
+                role: data.role || 'anggota',
+                status: data.status || 'approved'
             };
+
+            if (userWithRole.status === 'pending') {
+                throw new Error('Akun Anda masih dalam tinjauan. Silakan hubungi Admin atau pimpinan.');
+            }
 
             // Save user session locally
             localStorage.setItem('user', JSON.stringify(userWithRole));
@@ -90,29 +97,30 @@ export default function Login() {
                             type="text"
                             required
                             placeholder="Masukkan NRP..."
-                            value={nrp}
-                            onChange={(e) => setNrp(e.target.value)}
+                            value={formData.nrp}
+                            onChange={(e) => setFormData({ ...formData, nrp: e.target.value })}
                             className="w-full bg-slate-900/50 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold"
                         />
                     </div>
 
                     <div className="relative">
                         <KeyRound className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            required
-                            placeholder="Kata Sandi / Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl py-4 pl-14 pr-14 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-500 transition-colors"
-                        >
-                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
+                        <div className="relative">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Kata Sandi</label>
+                            <input
+                                type={showPassword ? "text" : "password"} required
+                                value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 pr-12 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-bold"
+                                placeholder="Masukkan password Anda"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-[38px] text-slate-500 hover:text-emerald-500 transition-colors"
+                            >
+                                {showPassword ? <span className="text-xs font-bold uppercase">Sembunyikan</span> : <span className="text-xs font-bold uppercase">Lihat</span>}
+                            </button>
+                        </div>
                     </div>
 
                     <button

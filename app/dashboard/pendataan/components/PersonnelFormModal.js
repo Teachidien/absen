@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { X, Save, User } from 'lucide-react';
 
 const PANGKAT_LIST = ['Prada', 'Pratu', 'Praka', 'Kopda', 'Koptu', 'Kopka', 'Serda', 'Sertu', 'Serka', 'Serma', 'Pelda', 'Peltu', 'Letda', 'Lettu', 'Kapten', 'Mayor', 'Letkol', 'Kolonel', 'Brigjen', 'Mayjen', 'Letjen', 'Jenderal'];
-const SATUAN_LIST = ['Kompi A', 'Kompi B', 'Kompi C', 'Banpur', 'Kompi Markas'];
+const SATUAN_LIST = ['Kompi A', 'Kompi B', 'Kompi C', 'Kompi Markas', 'Kompi Bantuan'];
+const ROLE_LIST = ['anggota', 'piket', 'pimpinan', 'admin'];
 
-export default function PersonnelFormModal({ isOpen, onClose, initialData, onSave }) {
-    const [formData, setFormData] = useState({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A' });
+export default function PersonnelFormModal({ isOpen, onClose, initialData, onSave, currentUser }) {
+    const [formData, setFormData] = useState({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A', role: 'anggota', password: '' });
 
     useEffect(() => {
         if (isOpen) {
@@ -14,7 +15,7 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                 setFormData(initialData);
             } else {
                 // eslint-disable-next-line
-                setFormData({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A' });
+                setFormData({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A', role: 'anggota', password: '' });
             }
         }
     }, [isOpen, initialData]);
@@ -53,29 +54,44 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                         <input
                             type="text"
                             required
-                            value={formData.name}
+                            value={formData.name || ''}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold"
                             placeholder="M. Hasnawi"
                         />
                     </div>
-                    <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">NRP / NIK</label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.nrp}
-                            onChange={(e) => setFormData({ ...formData, nrp: e.target.value })}
-                            disabled={!!initialData} // Disallow changing NRP on edit
-                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold disabled:opacity-50"
-                            placeholder="Ketik NRP..."
-                        />
-                    </div>
                     <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">NRP</label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.nrp || ''}
+                                onChange={(e) => setFormData({ ...formData, nrp: e.target.value })}
+                                disabled={!!initialData} // Disallow changing NRP on edit
+                                className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold disabled:opacity-50"
+                                placeholder="Ketik NRP..."
+                            />
+                        </div>
+                        {!initialData && (
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Password</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.password || ''}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold"
+                                    placeholder="Password Default"
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Pangkat</label>
                             <select
-                                value={formData.pangkat}
+                                value={formData.pangkat || 'Prada'}
                                 onChange={(e) => setFormData({ ...formData, pangkat: e.target.value })}
                                 className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
                             >
@@ -85,13 +101,25 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Satuan / Kompi</label>
                             <select
-                                value={formData.satuan}
+                                value={formData.satuan || 'Kompi A'}
                                 onChange={(e) => setFormData({ ...formData, satuan: e.target.value })}
                                 className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
                             >
                                 {SATUAN_LIST.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
+                        {currentUser?.role === 'admin' && (
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Hak Akses</label>
+                                <select
+                                    value={formData.role || 'anggota'}
+                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                    className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
+                                >
+                                    {ROLE_LIST.map(r => <option key={r} value={r}>{r.toUpperCase()}</option>)}
+                                </select>
+                            </div>
+                        )}
                     </div>
 
                     <button

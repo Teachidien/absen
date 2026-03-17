@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import { BookOpen, Search, Printer, FileText, Calendar, Users, ChevronDown, Activity, AlertCircle } from 'lucide-react';
 
 const APEL_TYPES = ['Apel Pagi', 'Apel Siang', 'Apel Malam'];
@@ -13,6 +14,19 @@ export default function Laporan() {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user.role === 'anggota') {
+                router.push('/dashboard');
+            }
+        } else {
+            router.push('/login');
+        }
+    }, [router]);
 
     const fetchLaporan = async () => {
         setLoading(true);
