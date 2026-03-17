@@ -74,6 +74,70 @@ export default function Login() {
         }
     };
 
+    const handleForgotPassword = async () => {
+        const { value: nrp_input } = await Swal.fire({
+            title: 'Lupa Password?',
+            text: 'Masukkan NRP Anda untuk meminta reset password ke Admin.',
+            icon: 'question',
+            input: 'text',
+            inputPlaceholder: 'NRP Anda',
+            showCancelButton: true,
+            confirmButtonText: 'Ajukan Reset',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            customClass: { popup: 'glass-swal', input: 'bg-white/10 text-white font-bold text-center mt-4 border-white/20 focus:ring-emerald-500' },
+            inputValidator: (value) => {
+                if (!value) return 'NRP tidak boleh kosong!';
+            }
+        });
+
+        if (nrp_input) {
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mencari NRP Anda di sistem.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                customClass: { popup: 'glass-swal' }
+            });
+
+            try {
+                // 1. Check if user exists
+                const { data: user, error: userError } = await supabase
+                    .from('users')
+                    .select('id, name')
+                    .eq('nrp', nrp_input)
+                    .single();
+
+                if (userError || !user) {
+                    throw new Error('NRP tidak terdaftar di sistem.');
+                }
+
+                // 2. Set reset_requested flag
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({ reset_requested: true })
+                    .eq('id', user.id);
+
+                if (updateError) throw updateError;
+
+                Swal.fire({
+                    title: 'Berhasil Diajukan',
+                    html: `Permintaan reset password untuk NRP <b>${nrp_input}</b> (${user.name}) telah dikirim.<br><br>Silakan tunggu persetujuan Admin/Pimpinan.`,
+                    icon: 'success',
+                    customClass: { popup: 'glass-swal' }
+                });
+
+            } catch (error) {
+                Swal.fire({
+                    title: 'Gagal',
+                    text: error.message,
+                    icon: 'error',
+                    customClass: { popup: 'glass-swal' }
+                });
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#111611]">
             {/* Background elements */}
@@ -131,7 +195,10 @@ export default function Login() {
                         {loading ? 'Memverifikasi...' : <><LogIn size={18} /> Masuk Sistem</>}
                     </button>
 
-                    <div className="text-center mt-6">
+                    <div className="flex flex-col items-center gap-4 mt-6">
+                        <button type="button" onClick={handleForgotPassword} className="text-[11px] font-bold text-slate-400 hover:text-emerald-400 uppercase tracking-widest transition-colors">
+                            Lupa Password?
+                        </button>
                         <a href="/register" className="text-[11px] font-bold text-slate-400 hover:text-emerald-400 uppercase tracking-widest transition-colors">
                             Belum Punya Akun? Daftar Disini
                         </a>

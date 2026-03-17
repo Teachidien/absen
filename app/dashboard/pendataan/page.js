@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     Users, Search, Activity,
-    Filter, UserPlus, XCircle, Trash2, ChevronDown
+    Filter, UserPlus, XCircle, Trash2, ChevronDown, KeyRound
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PersonnelFormModal from './components/PersonnelFormModal';
@@ -21,6 +21,7 @@ const SATUAN_LOGOS = {
 export default function DaftarPersonel() {
     const [personnel, setPersonnel] = useState([]);
     const [pendingUsers, setPendingUsers] = useState([]);
+    const [resetRequests, setResetRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
@@ -65,6 +66,17 @@ export default function DaftarPersonel() {
                         setPendingUsers(pending);
                     } else {
                         setPendingUsers([]);
+                    }
+
+                    // Fetch reset requests
+                    const { data: resets, error: resetErr } = await supabase.from('users')
+                        .select('*')
+                        .eq('reset_requested', true);
+                        
+                    if (!resetErr && resets?.length > 0) {
+                        setResetRequests(resets);
+                    } else {
+                        setResetRequests([]);
                     }
                 }
             } catch (err) {
@@ -206,6 +218,34 @@ export default function DaftarPersonel() {
         });
     };
 
+    const handleResetPassword = async (id, name) => {
+        Swal.fire({
+            title: 'Reset Password?',
+            text: `Ubah password ${name} menjadi '12345678'?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'Ya, Reset',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'glass-swal' }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                try {
+                    const { error } = await supabase.from('users').update({ password: '12345678', reset_requested: false }).eq('id', id);
+                    if (error) throw error;
+                    
+                    setResetRequests(prev => prev.filter(p => p.id !== id));
+                    Swal.fire({ title: 'Berhasil Diset', text: 'Password telah kembali ke default.', icon: 'success', customClass: { popup: 'glass-swal' } });
+                } catch (err) {
+                    Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan sistem.', icon: 'error', customClass: { popup: 'glass-swal' } });
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+    };
+
     return (
         <div className="flex-1 flex flex-col p-3 lg:p-8 relative min-h-screen">
 
@@ -325,6 +365,49 @@ export default function DaftarPersonel() {
                                                         className="text-[9px] font-black text-rose-400 hover:text-white bg-rose-500/10 px-3 py-1.5 rounded-xl border border-rose-500/20 hover:bg-rose-500 transition-all ml-1"
                                                     >
                                                         Tolak
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Permintaan Reset Password Section (Only for Admin/Pimpinan) */}
+                        {resetRequests.length > 0 && !isAnggota && (
+                            <div className="mb-6 rounded-2xl border border-rose-500/20 overflow-hidden bg-rose-500/5">
+                                <div className="w-full flex items-center gap-4 px-5 py-4 bg-rose-500/10">
+                                    <div className="w-14 h-14 rounded-2xl bg-rose-500/20 flex items-center justify-center shrink-0 border border-rose-500/30">
+                                        <KeyRound className="text-rose-400" size={24} />
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <p className="text-xs font-black text-rose-400 uppercase tracking-wide">Permintaan Reset Password</p>
+                                        <p className="text-[9px] text-rose-500/70 font-bold">Butuh di-reset ke default</p>
+                                    </div>
+                                    <span className="text-[9px] font-black bg-rose-500/20 text-rose-400 px-2 py-1 rounded-lg shrink-0">{resetRequests.length}</span>
+                                </div>
+                                
+                                <div className="border-t border-rose-500/10 p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {resetRequests.map(p => (
+                                        <div key={p.id} className="group p-4 rounded-2xl bg-black/20 border border-rose-500/10 hover:border-rose-500/30 transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-11 h-11 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 font-black text-base border border-rose-500/20 shrink-0">
+                                                    {p.name.charAt(0)}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-black text-white text-xs tracking-tight uppercase truncate">{p.name}</h4>
+                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                                        <span className="text-[9px] font-black bg-white/10 text-slate-400 px-1.5 py-0.5 rounded">{p.satuan}</span>
+                                                        <span className="text-[9px] font-bold text-slate-500">{p.nrp}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button
+                                                        onClick={() => handleResetPassword(p.id, p.name)}
+                                                        className="text-[9px] font-black text-rose-400 hover:text-white bg-rose-500/10 px-3 py-1.5 rounded-xl border border-rose-500/20 hover:bg-rose-500 transition-all"
+                                                    >
+                                                        Reset
                                                     </button>
                                                 </div>
                                             </div>

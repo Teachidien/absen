@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Activity, Users, BookOpen, LogOut, FileText, MapPin } from 'lucide-react';
+import { ShieldCheck, Activity, Users, BookOpen, LogOut, FileText, MapPin, Settings } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/dashboard' }) {
@@ -20,6 +20,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/da
         { icon: <BookOpen className="w-4 h-4" />, label: 'Laporan', href: '/dashboard/laporan', roles: ['admin', 'pimpinan'] },
         { icon: <FileText className="w-4 h-4" />, label: 'Ajukan Izin', href: '/dashboard/izin', roles: ['anggota'] },
         { icon: <MapPin className="w-4 h-4" />, label: 'Pantau Izin', href: '/dashboard/pantau-izin', roles: ['admin', 'pimpinan'] },
+        { icon: <Settings className="w-4 h-4" />, label: 'Pengaturan', href: '/dashboard/pengaturan', roles: ['admin', 'pimpinan', 'piket', 'anggota'] },
     ];
 
     const menuItems = user ? allMenuItems.filter(i => i.roles.includes(user.role)) : [];

@@ -15,16 +15,16 @@ async function runMigration() {
     // This will fail if columns don't exist, and succeed after ALTER TABLE is run
     const { data, error } = await supabase
         .from('users')
-        .update({ password: 'password123', role: 'anggota' })
-        .eq('id', '')  // No-op just to test columns
+        .update({ password: 'password123', role: 'anggota', reset_requested: false })
+        .eq('id', '00000000-0000-0000-0000-000000000000')  // Non-existent UUID
         .select();
 
     if (error && error.message.includes('column')) {
-        console.log('Columns dont exist yet. Please run update_schema.sql in your Supabase SQL editor.');
+        console.log('Columns dont exist yet. Please run update_schema_v3.sql in your Supabase SQL editor.');
         console.log('Copy the following SQL and paste into: https://supabase.com/dashboard/project/aitfgajpqinkcaaqevrn/sql/new');
         console.log('\n---SQL TO RUN---\n');
         const fs = require('fs');
-        console.log(fs.readFileSync('./update_schema.sql', 'utf8'));
+        console.log(fs.readFileSync('./update_schema_v3.sql', 'utf8'));
     } else {
         console.log('Schema already has role/password columns!');
         // Now update existing users with default values
