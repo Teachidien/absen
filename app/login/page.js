@@ -68,7 +68,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0f1714]">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#111611]">
             {/* Background elements */}
             <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transform -rotate-12 translate-x-1/4 -translate-y-1/4">
                 <ShieldCheck size={800} className="text-emerald-500" />

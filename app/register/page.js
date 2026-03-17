@@ -62,7 +62,7 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0f1714]">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#111611]">
             <div className="absolute bottom-0 left-0 p-12 opacity-5 pointer-events-none transform rotate-12 -translate-x-1/4 translate-y-1/4">
                 <Fingerprint size={600} className="text-emerald-500" />
             </div>

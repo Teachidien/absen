@@ -1,22 +1,36 @@
 @import "tailwindcss";
 
+@theme {
+  --color-emerald-50: #f2f4ec;
+  --color-emerald-100: #e0e6d5;
+  --color-emerald-200: #c3d0aa;
+  --color-emerald-300: #9eb477;
+  --color-emerald-400: #7d9950;
+  --color-emerald-500: #5f7e34;
+  --color-emerald-600: #4b6626;
+  --color-emerald-700: #3a4f1e;
+  --color-emerald-800: #2f401a;
+  --color-emerald-900: #273517;
+  --color-emerald-950: #141c0a;
+}
+
 :root {
-  /* Emerald 600 */
-  --primary: 5, 150, 105;
-  --primary-glow: radial-gradient(rgba(5, 150, 105, 0.15), rgba(5, 150, 105, 0));
+  /* Military Green (TNI AD) */
+  --primary: 95, 126, 52; /* Based on emerald-500 replacement: #5f7e34 => 95, 126, 52 */
+  --primary-glow: radial-gradient(rgba(95, 126, 52, 0.15), rgba(95, 126, 52, 0));
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
 }
 
 @layer base {
   body {
-    /* Very dark olive/slate */
-    @apply min-h-screen bg-[#0f1714] text-slate-100 antialiased overflow-x-hidden;
+    /* DarK Camo / Olive Base */
+    @apply min-h-screen bg-[#111611] text-[#e2e4dc] antialiased overflow-x-hidden;
     background-image:
-      radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(4, 120, 87, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(20, 83, 45, 0.1) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(95, 126, 52, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(80, 95, 50, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(68, 62, 45, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(30, 40, 25, 0.3) 0px, transparent 50%);
   }
 }
 
@@ -30,7 +44,7 @@
   }
 
   .text-glow {
-    text-shadow: 0 0 20px rgba(5, 150, 105, 0.5);
+    text-shadow: 0 0 20px rgba(95, 126, 52, 0.5);
   }
 
   .nav-link-active {
