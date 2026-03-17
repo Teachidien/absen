@@ -71,13 +71,13 @@ export default function Login() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#111611]">
             {/* Background elements */}
             <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transform -rotate-12 translate-x-1/4 -translate-y-1/4">
-                <ShieldCheck size={800} className="text-emerald-500" />
+                <img src="/logos/sba-alpha.png" alt="SBA Background" className="w-[800px] h-[800px] object-contain opacity-20" />
             </div>
 
             <div className="glass-card relative w-full max-w-md rounded-[2.5rem] p-10 border border-white/10 shadow-2xl z-10">
                 <div className="flex flex-col items-center mb-10">
-                    <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center shadow-lg shadow-emerald-500/40 rotate-3 mb-6">
-                        <ShieldCheck className="text-white" size={40} />
+                    <div className="w-28 h-28 mb-6 relative bg-white/5 rounded-3xl p-3 shadow-2xl shadow-emerald-500/20 border border-white/10">
+                        <img src="/logos/sba-alpha.png" alt="SBA Logo" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(45,212,191,0.6)]" />
                     </div>
                     <h1 className="text-3xl font-black text-white tracking-tight">SBA DIGITAL</h1>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Portal Otentikasi Personel</p>

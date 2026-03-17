@@ -59,8 +59,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/da
 
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-8">
-                        <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/40 rotate-3">
-                            <ShieldCheck className="text-white" size={18} />
+                        <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10 p-1">
+                            <img src="/logos/sba-alpha.png" alt="SBA Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
                         </div>
                         <div>
                             <h1 className="text-base font-black tracking-tight text-white leading-tight">SBA Digital</h1>

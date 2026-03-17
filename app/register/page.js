@@ -64,13 +64,13 @@ export default function Register() {
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#111611]">
             <div className="absolute bottom-0 left-0 p-12 opacity-5 pointer-events-none transform rotate-12 -translate-x-1/4 translate-y-1/4">
-                <Fingerprint size={600} className="text-emerald-500" />
+                <img src="/logos/sba-alpha.png" alt="SBA Background" className="w-[600px] h-[600px] object-contain opacity-20" />
             </div>
 
             <div className="glass-card relative w-full max-w-2xl rounded-[2.5rem] p-10 border border-white/10 shadow-2xl z-10">
                 <div className="flex items-center gap-6 mb-10">
-                    <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/40 -rotate-3">
-                        <UserPlus className="text-white" size={32} />
+                    <div className="w-24 h-24 relative shrink-0 bg-white/5 rounded-3xl p-2 shadow-xl shadow-emerald-500/20 border border-white/10">
+                        <img src="/logos/sba-alpha.png" alt="SBA Logo" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(45,212,191,0.5)]" />
                     </div>
                     <div>
                         <h1 className="text-3xl font-black text-white tracking-tight">Daftar Akun Baru</h1>

@@ -8,7 +8,15 @@ import {
 import Swal from 'sweetalert2';
 import PersonnelFormModal from './components/PersonnelFormModal';
 
-const SATUAN_ORDER = ['Kompi A', 'Kompi B', 'Kompi C', 'Kompi Markas', 'Banpur', 'Kompi M'];
+const SATUAN_ORDER = ['Kompi A', 'Kompi B', 'Kompi C', 'Kompi Markas', 'Banpur'];
+
+const SATUAN_LOGOS = {
+    'Kompi A': '/logos/kompi-a-alpha.png',
+    'Kompi B': '/logos/kompi-b-alpha.png',
+    'Kompi C': '/logos/kompi-c-alpha.png',
+    'Kompi Markas': '/logos/kompi-markas-alpha.png',
+    'Kompi Bantuan': '/logos/banpur-alpha.png'
+};
 
 export default function DaftarPersonel() {
     const [personnel, setPersonnel] = useState([]);
@@ -237,10 +245,16 @@ export default function DaftarPersonel() {
                                         {/* Header kompi */}
                                         <button
                                             onClick={() => toggleKompi(satuan)}
-                                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
+                                            className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-all"
                                         >
-                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${isOpen ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/5 text-slate-500'}`}>
-                                                <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 overflow-hidden shadow-lg shadow-emerald-500/10 transition-transform duration-300 group-hover:scale-105">
+                                                {SATUAN_LOGOS[satuan] ? (
+                                                    <img src={SATUAN_LOGOS[satuan]} alt={satuan} className="w-full h-full object-contain p-1" />
+                                                ) : (
+                                                    <div className={`w-full h-full flex items-center justify-center transition-all ${isOpen ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500'}`}>
+                                                        <ChevronDown size={16} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex-1 text-left">
                                                 <p className="text-xs font-black text-white uppercase tracking-wide">{satuan}</p>
