@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MapPin, CheckCircle2, XCircle, Clock, Users, AlertCircle, Loader2, Filter } from 'lucide-react';
+import { MapPin, CheckCircle2, XCircle, Clock, Users, AlertCircle, Loader2, Filter, X, ExternalLink, ZoomIn } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const STATUS_FILTERS = ['Semua', 'menunggu', 'disetujui', 'ditolak'];
@@ -11,6 +11,11 @@ export default function PantauIzin() {
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState('Semua');
     const [updatingId, setUpdatingId] = useState(null);
+
+    // Lightbox state
+    const [lightboxUrl, setLightboxUrl] = useState(null);
+    // Map modal state
+    const [mapModal, setMapModal] = useState(null); // { lat, lng, name }
 
     const fetchRequests = useCallback(async () => {
         setLoading(true);
@@ -24,6 +29,18 @@ export default function PantauIzin() {
     }, []);
 
     useEffect(() => { fetchRequests(); }, [fetchRequests]);
+
+    // Tutup modal dengan tombol Escape
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key === 'Escape') {
+                setLightboxUrl(null);
+                setMapModal(null);
+            }
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, []);
 
     const handleUpdateStatus = async (id, newStatus) => {
         const { value: catatan } = await Swal.fire({
@@ -39,7 +56,7 @@ export default function PantauIzin() {
             customClass: { popup: 'glass-swal' }
         });
 
-        if (catatan === undefined) return; // Cancelled
+        if (catatan === undefined) return;
 
         setUpdatingId(id);
         const { error } = await supabase
@@ -168,30 +185,60 @@ export default function PantauIzin() {
                                     </div>
                                 </div>
 
-                                {/* Foto */}
+                                {/* Foto — klik untuk buka full screen */}
                                 {r.foto_url && (
                                     <div>
                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                                             <Filter size={10} /> Foto Bukti
+                                            <span className="text-emerald-400/60 normal-case tracking-normal font-medium">(klik untuk perbesar)</span>
                                         </p>
-                                        {/* eslint-disable-next-line */}
-                                        <img src={r.foto_url} alt="Foto bukti izin" className="w-full h-48 object-cover rounded-2xl border border-white/10" />
+                                        <div
+                                            className="relative group cursor-zoom-in"
+                                            onClick={() => setLightboxUrl(r.foto_url)}
+                                        >
+                                            {/* eslint-disable-next-line */}
+                                            <img
+                                                src={r.foto_url}
+                                                alt="Foto bukti izin"
+                                                className="w-full h-48 object-cover rounded-2xl border border-white/10 transition-all duration-300 group-hover:brightness-75"
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 py-2 flex items-center gap-2">
+                                                    <ZoomIn size={16} className="text-white" />
+                                                    <span className="text-white text-xs font-black uppercase tracking-widest">Perbesar</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
-                                {/* Peta Lokasi */}
+                                {/* Peta Lokasi — klik untuk buka modal peta besar */}
                                 {r.latitude && r.longitude && (
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                            <MapPin size={10} /> Lokasi GPS — {r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}
-                                        </p>
-                                        <iframe
-                                            title={`Lokasi ${user?.name}`}
-                                            width="100%"
-                                            height="220"
-                                            className="rounded-2xl border border-white/10"
-                                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${r.longitude - 0.005},${r.latitude - 0.005},${r.longitude + 0.005},${r.latitude + 0.005}&layer=mapnik&marker=${r.latitude},${r.longitude}`}
-                                        />
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                <MapPin size={10} /> Lokasi GPS — {r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}
+                                            </p>
+                                            <span className="text-emerald-400/60 text-[9px] font-medium">(klik untuk perbesar)</span>
+                                        </div>
+                                        <div
+                                            className="relative group cursor-pointer"
+                                            onClick={() => setMapModal({ lat: r.latitude, lng: r.longitude, name: user?.name || 'Personel' })}
+                                        >
+                                            <iframe
+                                                title={`Lokasi ${user?.name}`}
+                                                width="100%"
+                                                height="220"
+                                                className="rounded-2xl border border-white/10 pointer-events-none"
+                                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${r.longitude - 0.005},${r.latitude - 0.005},${r.longitude + 0.005},${r.latitude + 0.005}&layer=mapnik&marker=${r.latitude},${r.longitude}`}
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl bg-black/30">
+                                                <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 py-2 flex items-center gap-2">
+                                                    <ExternalLink size={16} className="text-white" />
+                                                    <span className="text-white text-xs font-black uppercase tracking-widest">Perbesar Peta</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
@@ -203,7 +250,7 @@ export default function PantauIzin() {
                                     </div>
                                 )}
 
-                                {/* Action buttons — hanya jika masih menunggu */}
+                                {/* Action buttons */}
                                 {r.status === 'menunggu' && (
                                     <div className="flex gap-3 pt-2">
                                         <button
@@ -227,6 +274,81 @@ export default function PantauIzin() {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* ======= LIGHTBOX FOTO ======= */}
+            {lightboxUrl && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+                    onClick={() => setLightboxUrl(null)}
+                >
+                    <button
+                        className="absolute top-4 right-4 w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
+                        onClick={() => setLightboxUrl(null)}
+                    >
+                        <X size={20} />
+                    </button>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest absolute top-5 left-1/2 -translate-x-1/2">
+                        Tekan ESC atau klik di luar untuk tutup
+                    </div>
+                    {/* eslint-disable-next-line */}
+                    <img
+                        src={lightboxUrl}
+                        alt="Foto bukti izin - full size"
+                        className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
+
+            {/* ======= MODAL PETA BESAR ======= */}
+            {mapModal && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+                    onClick={() => setMapModal(null)}
+                >
+                    <div
+                        className="relative w-full max-w-3xl rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header modal peta */}
+                        <div className="flex items-center justify-between px-6 py-4 bg-slate-900/95 border-b border-white/10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                    <MapPin size={16} className="text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-white">Lokasi {mapModal.name}</p>
+                                    <p className="text-[9px] text-slate-500 font-mono">{mapModal.lat.toFixed(6)}, {mapModal.lng.toFixed(6)}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={`https://www.google.com/maps?q=${mapModal.lat},${mapModal.lng}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 py-1.5 rounded-xl transition-all"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <ExternalLink size={12} /> Google Maps
+                                </a>
+                                <button
+                                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+                                    onClick={() => setMapModal(null)}
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        </div>
+                        {/* Peta besar */}
+                        <iframe
+                            title="Lokasi GPS Personel"
+                            width="100%"
+                            height="500"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${mapModal.lng - 0.008},${mapModal.lat - 0.008},${mapModal.lng + 0.008},${mapModal.lat + 0.008}&layer=mapnik&marker=${mapModal.lat},${mapModal.lng}`}
+                        />
+                    </div>
                 </div>
             )}
         </div>
