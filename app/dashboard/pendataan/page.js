@@ -135,11 +135,12 @@ export default function DaftarPersonel() {
         setLoading(true);
         setIsModalOpen(false);
         try {
-            // Pimpinan tidak tergabung dalam kompi, jadi satuan tidak disertakan
-                const isPimpinan = data.role === 'pimpinan';
+            // piket, pimpinan, dan admin tidak tergabung dalam kompi
+                const ROLES_OUTSIDE_KOMPI = ['piket', 'pimpinan', 'admin'];
+                const isOutsideKompi = ROLES_OUTSIDE_KOMPI.includes(data.role);
                 const payload = data.id
-                ? { id: data.id, name: data.name, nrp: data.nrp, pangkat: data.pangkat, ...(isPimpinan ? {} : { satuan: data.satuan }), role: data.role }
-                : { name: data.name, nrp: data.nrp, pangkat: data.pangkat, ...(isPimpinan ? {} : { satuan: data.satuan }), role: data.role, password: data.password, status: 'approved' }; // Direct adds from dashboard are auto approved
+                ? { id: data.id, name: data.name, nrp: data.nrp, pangkat: data.pangkat, ...(isOutsideKompi ? { satuan: null } : { satuan: data.satuan }), role: data.role }
+                : { name: data.name, nrp: data.nrp, pangkat: data.pangkat, ...(isOutsideKompi ? { satuan: null } : { satuan: data.satuan }), role: data.role, password: data.password, status: 'approved' }; // Direct adds from dashboard are auto approved
 
             const { data: savedData, error } = await supabase.from('users').upsert(payload).select().single();
             if (error) throw error;
