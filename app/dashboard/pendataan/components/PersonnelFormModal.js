@@ -8,6 +8,8 @@ const ROLE_LIST = ['anggota', 'piket', 'pimpinan', 'admin'];
 export default function PersonnelFormModal({ isOpen, onClose, initialData, onSave, currentUser }) {
     const [formData, setFormData] = useState({ name: '', nrp: '', pangkat: 'Prada', satuan: 'Kompi A', role: 'anggota', password: '' });
 
+    const isPimpinan = formData.role === 'pimpinan';
+
     useEffect(() => {
         if (isOpen) {
             if (initialData) {
@@ -19,6 +21,12 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
             }
         }
     }, [isOpen, initialData]);
+
+    // Ketika role berubah ke pimpinan, hapus satuan
+    const handleRoleChange = (e) => {
+        const newRole = e.target.value;
+        setFormData({ ...formData, role: newRole, satuan: newRole === 'pimpinan' ? null : (formData.satuan || 'Kompi A') });
+    };
 
     if (!isOpen) return null;
 
@@ -87,7 +95,7 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                             </div>
                         )}
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className={`grid gap-4 ${isPimpinan ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Pangkat</label>
                             <select
@@ -98,22 +106,24 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                                 {PANGKAT_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Satuan / Kompi</label>
-                            <select
-                                value={formData.satuan || 'Kompi A'}
-                                onChange={(e) => setFormData({ ...formData, satuan: e.target.value })}
-                                className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
-                            >
-                                {SATUAN_LIST.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
+                        {!isPimpinan && (
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Satuan / Kompi</label>
+                                <select
+                                    value={formData.satuan || 'Kompi A'}
+                                    onChange={(e) => setFormData({ ...formData, satuan: e.target.value })}
+                                    className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
+                                >
+                                    {SATUAN_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                        )}
                         {currentUser?.role === 'admin' && (
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Hak Akses</label>
                                 <select
                                     value={formData.role || 'anggota'}
-                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                    onChange={handleRoleChange}
                                     className="w-full bg-slate-900/50 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold appearance-none"
                                 >
                                     {ROLE_LIST.map(r => <option key={r} value={r}>{r.toUpperCase()}</option>)}
@@ -121,6 +131,13 @@ export default function PersonnelFormModal({ isOpen, onClose, initialData, onSav
                             </div>
                         )}
                     </div>
+                    {isPimpinan && (
+                        <div className="flex items-center gap-2 px-1">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-amber-400/70 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
+                                ★ Pimpinan tidak tergabung dalam kompi
+                            </span>
+                        </div>
+                    )}
 
                     <button
                         type="submit"
