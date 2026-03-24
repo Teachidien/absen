@@ -50,18 +50,18 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/da
             {/* Backdrop overlay — tap untuk tutup sidebar di mobile */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                    className="fixed inset-0 z-40 bg-black/60 lg:hidden"
                     onClick={close}
                 />
             )}
 
-            <aside className={`fixed lg:relative z-50 w-60 h-[calc(100vh-1.5rem)] m-3 glass-card rounded-[2rem] flex flex-col transition-all duration-400 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-[120%] lg:translate-x-0'}`}>
+            <aside className={`fixed lg:relative z-50 w-60 h-[calc(100vh-1.5rem)] m-3 glass-card rounded-[2rem] flex flex-col transition-transform duration-300 will-change-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-[120%] lg:translate-x-0'}`}>
                 <div className="p-5 flex flex-col h-full">
 
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10 p-1">
-                            <img src="/logos/sba-alpha.png" alt="SBA Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
+                            <img src="/logos/sba-alpha.png" alt="SBA Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h1 className="text-base font-black tracking-tight text-white leading-tight">SBA Digital</h1>
@@ -86,11 +86,11 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePath = '/da
                                     key={i}
                                     href={item.href}
                                     onClick={close}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${isActive ? 'nav-link-active shadow-lg shadow-emerald-500/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 group ${isActive ? 'nav-link-active' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                                 >
                                     <span className={`${isActive ? 'text-emerald-400' : 'group-hover:text-emerald-400 transition-colors'}`}>{item.icon}</span>
                                     <span className="font-bold text-xs tracking-wide">{item.label}</span>
-                                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />}
+                                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
                                 </Link>
                             );
                         })}
